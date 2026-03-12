@@ -1,0 +1,28 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+:root {
+  --primaria: #4f46e5;
+  --primaria-hover: #4338ca;
+  --fundo: #f0f2f5;
+  --card: #ffffff;
+  --texto: #1e1e2e;
+  --texto-suave: #6b7280;
+  --borda: #e5e7eb;
+  --receita: #10b981;
+  --despesa: #ef4444;
+  --sombra: 0 2px 12px rgba(0, 0, 0, 0.08);
+}
+
+body {
+  font-family: 'Segoe UI', sans-serif;
+  background-color: var(--fundo);
+  color: var(--texto);
+}
+
+input, button {
+  font-family: inherit;
+}
