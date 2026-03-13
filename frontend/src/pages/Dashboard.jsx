@@ -1,40 +1,31 @@
 import { useEffect, useState } from "react";
 import Layout from "../components/Layout";
 import api from "../services/api";
+import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Legend, CartesianGrid } from "recharts";
+import styles from "./Dashboard.module.css";
 
 function Dashboard() {
-    const [resumo, setResumo] = useState({
-        total_receitas: 0,
-        total_despesas: 0,
-        saldo: 0
-    });
+    const [resumo, setResumo] = useState({ total_receitas: 0, total_despesas: 0, saldo: 0 });
     const [categorias, setCategorias] = useState([]);
+    const [mensal, setMensal] = useState([]);
     const [mostrarForm, setMostrarForm] = useState(false);
     const [erro, setErro] = useState("");
-    const [form, setForm] = useState({
-        descricao: "",
-        valor: "",
-        tipo: "receita",
-        data: "",
-        categoria_id: ""
-    });
+    const [form, setForm] = useState({ descricao: "", valor: "", tipo: "receita", data: "", categoria_id: "" });
 
-    useEffect(() => {
-        carregarTudo();
-    }, []);
+    useEffect(() => { carregarTudo(); }, []);
 
     async function carregarTudo() {
-        const [r, c] = await Promise.all([
+        const [r, c, m] = await Promise.all([
             api.get("/transacoes/resumo"),
-            api.get("/categorias")
+            api.get("/categorias"),
+            api.get("/transacoes/mensal")
         ]);
         setResumo(r.data);
         setCategorias(c.data);
+        setMensal(m.data);
     }
 
-    function handleChange(e) {
-        setForm({ ...form, [e.target.name]: e.target.value });
-    }
+    function handleChange(e) { setForm({ ...form, [e.target.name]: e.target.value }); }
 
     async function handleSubmit(e) {
         e.preventDefault();
@@ -50,72 +41,56 @@ function Dashboard() {
     }
 
     function formatar(valor) {
-        return Number(valor || 0).toLocaleString("pt-BR", {
-            style: "currency",
-            currency: "BRL"
-        });
+        return Number(valor || 0).toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
     }
 
     const categoriasFiltradas = categorias.filter((c) => c.tipo === form.tipo);
 
+    const dadosGrafico = [
+        { nome: "Receitas", valor: Number(resumo.total_receitas || 0) },
+        { nome: "Despesas", valor: Number(resumo.total_despesas || 0) },
+        { nome: "Saldo", valor: Number(resumo.saldo || 0) }
+    ];
+
     return (
         <Layout>
-            <div style={s.header}>
+            <div className={styles.header}>
                 <div>
-                    <h1 style={s.titulo}>Dashboard</h1>
-                    <p style={s.subtitulo}>Resumo das suas finanças</p>
+                    <h1 className={styles.titulo}>Dashboard</h1>
+                    <p className={styles.subtitulo}>Resumo das suas finanças</p>
                 </div>
-                <button style={s.botaoNovo} onClick={() => setMostrarForm(!mostrarForm)}>
+                <button className={styles.botaoNovo} onClick={() => setMostrarForm(!mostrarForm)}>
                     {mostrarForm ? "Cancelar" : "+ Nova Transação"}
                 </button>
             </div>
 
             {mostrarForm && (
-                <div style={s.card}>
-                    <h3 style={s.formTitulo}>Nova Transação</h3>
+                <div className={styles.card}>
+                    <h3 className={styles.formTitulo}>Nova Transação</h3>
                     <form onSubmit={handleSubmit}>
-                        <div style={s.grid}>
-                            <div style={s.campo}>
-                                <label style={s.label}>Descrição</label>
-                                <input
-                                    style={s.input}
-                                    name="descricao"
-                                    placeholder="Ex: Salário"
-                                    value={form.descricao}
-                                    onChange={handleChange}
-                                />
+                        <div className={styles.grid}>
+                            <div className={styles.campo}>
+                                <label className={styles.label}>Descrição</label>
+                                <input className={styles.input} name="descricao" placeholder="Ex: Salário" value={form.descricao} onChange={handleChange} />
                             </div>
-                            <div style={s.campo}>
-                                <label style={s.label}>Valor</label>
-                                <input
-                                    style={s.input}
-                                    name="valor"
-                                    type="number"
-                                    placeholder="0.00"
-                                    value={form.valor}
-                                    onChange={handleChange}
-                                />
+                            <div className={styles.campo}>
+                                <label className={styles.label}>Valor</label>
+                                <input className={styles.input} name="valor" type="number" placeholder="0.00" value={form.valor} onChange={handleChange} />
                             </div>
-                            <div style={s.campo}>
-                                <label style={s.label}>Tipo</label>
-                                <select style={s.input} name="tipo" value={form.tipo} onChange={handleChange}>
+                            <div className={styles.campo}>
+                                <label className={styles.label}>Tipo</label>
+                                <select className={styles.input} name="tipo" value={form.tipo} onChange={handleChange}>
                                     <option value="receita">Receita</option>
                                     <option value="despesa">Despesa</option>
                                 </select>
                             </div>
-                            <div style={s.campo}>
-                                <label style={s.label}>Data</label>
-                                <input
-                                    style={s.input}
-                                    name="data"
-                                    type="date"
-                                    value={form.data}
-                                    onChange={handleChange}
-                                />
+                            <div className={styles.campo}>
+                                <label className={styles.label}>Data</label>
+                                <input className={styles.input} name="data" type="date" value={form.data} onChange={handleChange} />
                             </div>
-                            <div style={s.campo}>
-                                <label style={s.label}>Categoria</label>
-                                <select style={s.input} name="categoria_id" value={form.categoria_id} onChange={handleChange}>
+                            <div className={styles.campo}>
+                                <label className={styles.label}>Categoria</label>
+                                <select className={styles.input} name="categoria_id" value={form.categoria_id} onChange={handleChange}>
                                     <option value="">Selecione...</option>
                                     {categoriasFiltradas.map((c) => (
                                         <option key={c.id} value={c.id}>{c.nome}</option>
@@ -123,136 +98,62 @@ function Dashboard() {
                                 </select>
                             </div>
                         </div>
-                        {erro && <p style={s.erro}>{erro}</p>}
-                        <button style={s.botaoSalvar} type="submit">Salvar</button>
+                        {erro && <p className={styles.erro}>{erro}</p>}
+                        <button className={styles.botaoSalvar} type="submit">Salvar</button>
                     </form>
                 </div>
             )}
 
-            <div style={s.cards}>
-                <div style={{...s.cardResumo, borderTop: "4px solid var(--receita)"}}>
-                    <p style={s.cardLabel}>Total Receitas</p>
-                    <p style={{...s.cardValor, color: "var(--receita)"}}>
-                        {formatar(resumo.total_receitas)}
-                    </p>
+            <div className={styles.cards}>
+                <div className={styles.cardResumo} style={{ borderTop: "4px solid var(--receita)" }}>
+                    <p className={styles.cardLabel}>Total Receitas</p>
+                    <p className={styles.cardValor} style={{ color: "var(--receita)" }}>{formatar(resumo.total_receitas)}</p>
                 </div>
-                <div style={{...s.cardResumo, borderTop: "4px solid var(--despesa)"}}>
-                    <p style={s.cardLabel}>Total Despesas</p>
-                    <p style={{...s.cardValor, color: "var(--despesa)"}}>
-                        {formatar(resumo.total_despesas)}
-                    </p>
+                <div className={styles.cardResumo} style={{ borderTop: "4px solid var(--despesa)" }}>
+                    <p className={styles.cardLabel}>Total Despesas</p>
+                    <p className={styles.cardValor} style={{ color: "var(--despesa)" }}>{formatar(resumo.total_despesas)}</p>
                 </div>
-                <div style={{...s.cardResumo, borderTop: "4px solid var(--primaria)"}}>
-                    <p style={s.cardLabel}>Saldo Atual</p>
-                    <p style={{...s.cardValor, color: "var(--primaria)"}}>
-                        {formatar(resumo.saldo)}
-                    </p>
+                <div className={styles.cardResumo} style={{ borderTop: "4px solid var(--primaria)" }}>
+                    <p className={styles.cardLabel}>Saldo Atual</p>
+                    <p className={styles.cardValor} style={{ color: "var(--primaria)" }}>{formatar(resumo.saldo)}</p>
                 </div>
+            </div>
+
+            <div className={styles.card} style={{ marginTop: "1.5rem" }}>
+                <h3 className={styles.formTitulo}>Visão Geral</h3>
+                <ResponsiveContainer width="100%" height={250}>
+                    <BarChart data={dadosGrafico}>
+                        <XAxis dataKey="nome" />
+                        <YAxis />
+                        <Tooltip formatter={(v) => formatar(v)} />
+                        <Legend />
+                        <Bar dataKey="valor" fill="#4f46e5" radius={[6, 6, 0, 0]} />
+                    </BarChart>
+                </ResponsiveContainer>
+            </div>
+
+            <div className={styles.card}>
+                <h3 className={styles.formTitulo}>Receitas vs Despesas por Mês</h3>
+                {mensal.length === 0 ? (
+                    <p style={{ textAlign: "center", color: "var(--texto-suave)", padding: "2rem 0" }}>
+                        Nenhum dado disponível ainda.
+                    </p>
+                ) : (
+                    <ResponsiveContainer width="100%" height={280}>
+                        <BarChart data={mensal} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
+                            <CartesianGrid strokeDasharray="3 3" stroke="var(--borda)" />
+                            <XAxis dataKey="mes" tick={{ fontSize: 12 }} />
+                            <YAxis tick={{ fontSize: 12 }} />
+                            <Tooltip formatter={(v) => formatar(v)} />
+                            <Legend />
+                            <Bar dataKey="receitas" name="Receitas" fill="var(--receita)" radius={[4, 4, 0, 0]} />
+                            <Bar dataKey="despesas" name="Despesas" fill="var(--despesa)" radius={[4, 4, 0, 0]} />
+                        </BarChart>
+                    </ResponsiveContainer>
+                )}
             </div>
         </Layout>
     );
 }
-
-const s = {
-    header: {
-        display: "flex",
-        justifyContent: "space-between",
-        alignItems: "center",
-        marginBottom: "2rem"
-    },
-    titulo: {
-        fontSize: "1.5rem",
-        fontWeight: "700",
-        color: "var(--texto)"
-    },
-    subtitulo: {
-        color: "var(--texto-suave)",
-        fontSize: "0.9rem",
-        marginTop: "0.25rem"
-    },
-    botaoNovo: {
-        padding: "0.75rem 1.5rem",
-        background: "var(--primaria)",
-        color: "white",
-        border: "none",
-        borderRadius: "8px",
-        fontWeight: "600",
-        cursor: "pointer",
-        fontSize: "0.9rem"
-    },
-    card: {
-        background: "var(--card)",
-        borderRadius: "12px",
-        padding: "1.5rem",
-        boxShadow: "var(--sombra)",
-        marginBottom: "1.5rem"
-    },
-    formTitulo: {
-        fontSize: "1rem",
-        fontWeight: "600",
-        marginBottom: "1.25rem",
-        color: "var(--texto)"
-    },
-    grid: {
-        display: "grid",
-        gridTemplateColumns: "repeat(2, 1fr)",
-        gap: "1rem"
-    },
-    campo: {
-        display: "flex",
-        flexDirection: "column"
-    },
-    label: {
-        fontSize: "0.85rem",
-        fontWeight: "600",
-        color: "var(--texto)",
-        marginBottom: "0.4rem"
-    },
-    input: {
-        padding: "0.75rem 1rem",
-        border: "1px solid var(--borda)",
-        borderRadius: "8px",
-        fontSize: "0.95rem",
-        color: "var(--texto)",
-        outline: "none"
-    },
-    botaoSalvar: {
-        marginTop: "1.25rem",
-        padding: "0.75rem 2rem",
-        background: "var(--primaria)",
-        color: "white",
-        border: "none",
-        borderRadius: "8px",
-        fontWeight: "600",
-        cursor: "pointer",
-        fontSize: "0.95rem"
-    },
-    erro: {
-        color: "var(--despesa)",
-        fontSize: "0.85rem",
-        marginTop: "0.75rem"
-    },
-    cards: {
-        display: "grid",
-        gridTemplateColumns: "repeat(3, 1fr)",
-        gap: "1.5rem"
-    },
-    cardResumo: {
-        background: "var(--card)",
-        borderRadius: "12px",
-        padding: "1.5rem",
-        boxShadow: "var(--sombra)"
-    },
-    cardLabel: {
-        fontSize: "0.85rem",
-        color: "var(--texto-suave)",
-        fontWeight: "500",
-        marginBottom: "0.75rem"
-    },
-    cardValor: {
-        fontSize: "1.75rem",
-        fontWeight: "700"
-    }
-};
 
 export default Dashboard;
