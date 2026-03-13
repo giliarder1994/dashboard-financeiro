@@ -4,7 +4,7 @@ curl -X POST http://localhost:3000/login -H "Content-Type: application/json" -d 
 
 token:
 
-eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6Mywibm9tZSI6IkdpbGlhcmRlIiwiaWF0IjoxNzczMzI0MzExLCJleHAiOjE3NzMzMjc5MTF9.amA-PgCzRoI-fhukPIfymEnFS-r9oTO-KBfQw2s1iqI
+eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwibm9tZSI6IkdpbGlhcmRlIiwiaWF0IjoxNzczMzYxNzE4LCJleHAiOjE3NzMzNjUzMTh9.DNH1D9NzvNV21swPS9XrYe6SiKerQNUaYYVR5H3rKa8
 
 Criar categoria receita:
 
