@@ -1,37 +1,46 @@
 import { useState, useEffect } from "react";
 import Layout from "../components/Layout";
 import api from "../services/api";
+import styles from "./Categorias.module.css";
 
 function Categorias() {
     const [categorias, setCategorias] = useState([]);
     const [mostrarForm, setMostrarForm] = useState(false);
+    const [editando, setEditando] = useState(null);
     const [erro, setErro] = useState("");
     const [form, setForm] = useState({ nome: "", tipo: "receita" });
 
-    useEffect(() => {
-        carregar();
-    }, []);
+    useEffect(() => { carregar(); }, []);
 
     async function carregar() {
         const resposta = await api.get("/categorias");
         setCategorias(resposta.data);
     }
 
-    function handleChange(e) {
-        setForm({ ...form, [e.target.name]: e.target.value });
-    }
+    function handleChange(e) { setForm({ ...form, [e.target.name]: e.target.value }); }
 
     async function handleSubmit(e) {
         e.preventDefault();
         setErro("");
         try {
-            await api.post("/categorias", form);
+            if (editando) {
+                await api.put(`/categorias/${editando}`, form);
+                setEditando(null);
+            } else {
+                await api.post("/categorias", form);
+            }
             setForm({ nome: "", tipo: "receita" });
             setMostrarForm(false);
             carregar();
         } catch (err) {
             setErro(err.response?.data?.erro || "Erro ao salvar");
         }
+    }
+
+    function iniciarEdicao(c) {
+        setForm({ nome: c.nome, tipo: c.tipo });
+        setEditando(c.id);
+        setMostrarForm(true);
     }
 
     async function deletar(id) {
@@ -46,61 +55,55 @@ function Categorias() {
 
     return (
         <Layout>
-            <div style={s.header}>
+            <div className={styles.header}>
                 <div>
-                    <h1 style={s.titulo}>Categorias</h1>
-                    <p style={s.subtitulo}>Organize suas receitas e despesas</p>
+                    <h1 className={styles.titulo}>Categorias</h1>
+                    <p className={styles.subtitulo}>Organize suas receitas e despesas</p>
                 </div>
-                <button style={s.botaoNovo} onClick={() => setMostrarForm(!mostrarForm)}>
+                <button className={styles.botaoNovo} onClick={() => { setMostrarForm(!mostrarForm); setEditando(null); setForm({ nome: "", tipo: "receita" }); }}>
                     {mostrarForm ? "Cancelar" : "+ Nova Categoria"}
                 </button>
             </div>
 
             {mostrarForm && (
-                <div style={s.card}>
-                    <h3 style={s.formTitulo}>Nova Categoria</h3>
+                <div className={styles.card}>
+                    <h3 className={styles.formTitulo}>{editando ? "Editar Categoria" : "Nova Categoria"}</h3>
                     <form onSubmit={handleSubmit}>
-                        <div style={s.grid}>
-                            <div style={s.campo}>
-                                <label style={s.label}>Nome</label>
-                                <input
-                                    style={s.input}
-                                    name="nome"
-                                    placeholder="Ex: Alimentação"
-                                    value={form.nome}
-                                    onChange={handleChange}
-                                />
+                        <div className={styles.grid}>
+                            <div className={styles.campo}>
+                                <label className={styles.label}>Nome</label>
+                                <input className={styles.input} name="nome" placeholder="Ex: Alimentação" value={form.nome} onChange={handleChange} />
                             </div>
-                            <div style={s.campo}>
-                                <label style={s.label}>Tipo</label>
-                                <select style={s.input} name="tipo" value={form.tipo} onChange={handleChange}>
+                            <div className={styles.campo}>
+                                <label className={styles.label}>Tipo</label>
+                                <select className={styles.input} name="tipo" value={form.tipo} onChange={handleChange}>
                                     <option value="receita">Receita</option>
                                     <option value="despesa">Despesa</option>
                                 </select>
                             </div>
                         </div>
-                        {erro && <p style={s.erro}>{erro}</p>}
-                        <button style={s.botaoSalvar} type="submit">Salvar</button>
+                        {erro && <p className={styles.erro}>{erro}</p>}
+                        <button className={styles.botaoSalvar} type="submit">{editando ? "Atualizar" : "Salvar"}</button>
                     </form>
                 </div>
             )}
 
-            <div style={s.card}>
+            <div className={styles.card}>
                 {categorias.length === 0 ? (
-                    <p style={s.vazio}>Nenhuma categoria encontrada.</p>
+                    <p className={styles.vazio}>Nenhuma categoria encontrada.</p>
                 ) : (
                     categorias.map((c) => (
-                        <div key={c.id} style={s.item}>
-                            <div style={s.itemInfo}>
-                                <span style={s.itemNome}>{c.nome}</span>
-                                <span style={{
-                                    ...s.itemTipo,
-                                    color: c.tipo === "receita" ? "var(--receita)" : "var(--despesa)"
-                                }}>
+                        <div key={c.id} className={styles.item}>
+                            <div className={styles.itemInfo}>
+                                <span className={styles.itemNome}>{c.nome}</span>
+                                <span className={styles.itemTipo} style={{ color: c.tipo === "receita" ? "var(--receita)" : "var(--despesa)" }}>
                                     {c.tipo === "receita" ? "↑ Receita" : "↓ Despesa"}
                                 </span>
                             </div>
-                            <button style={s.botaoDeletar} onClick={() => deletar(c.id)}>✕</button>
+                            <div className={styles.itemDireita}>
+                                <button className={styles.botaoEditar} onClick={() => iniciarEdicao(c)}>✏️</button>
+                                <button className={styles.botaoDeletar} onClick={() => deletar(c.id)}>✕</button>
+                            </div>
                         </div>
                     ))
                 )}
@@ -108,120 +111,5 @@ function Categorias() {
         </Layout>
     );
 }
-
-const s = {
-    header: {
-        display: "flex",
-        justifyContent: "space-between",
-        alignItems: "center",
-        marginBottom: "2rem"
-    },
-    titulo: {
-        fontSize: "1.5rem",
-        fontWeight: "700",
-        color: "var(--texto)"
-    },
-    subtitulo: {
-        color: "var(--texto-suave)",
-        fontSize: "0.9rem",
-        marginTop: "0.25rem"
-    },
-    botaoNovo: {
-        padding: "0.75rem 1.5rem",
-        background: "var(--primaria)",
-        color: "white",
-        border: "none",
-        borderRadius: "8px",
-        fontWeight: "600",
-        cursor: "pointer",
-        fontSize: "0.9rem"
-    },
-    card: {
-        background: "var(--card)",
-        borderRadius: "12px",
-        padding: "1.5rem",
-        boxShadow: "var(--sombra)",
-        marginBottom: "1.5rem"
-    },
-    formTitulo: {
-        fontSize: "1rem",
-        fontWeight: "600",
-        marginBottom: "1.25rem",
-        color: "var(--texto)"
-    },
-    grid: {
-        display: "grid",
-        gridTemplateColumns: "repeat(2, 1fr)",
-        gap: "1rem"
-    },
-    campo: {
-        display: "flex",
-        flexDirection: "column"
-    },
-    label: {
-        fontSize: "0.85rem",
-        fontWeight: "600",
-        color: "var(--texto)",
-        marginBottom: "0.4rem"
-    },
-    input: {
-        padding: "0.75rem 1rem",
-        border: "1px solid var(--borda)",
-        borderRadius: "8px",
-        fontSize: "0.95rem",
-        color: "var(--texto)",
-        outline: "none"
-    },
-    botaoSalvar: {
-        marginTop: "1.25rem",
-        padding: "0.75rem 2rem",
-        background: "var(--primaria)",
-        color: "white",
-        border: "none",
-        borderRadius: "8px",
-        fontWeight: "600",
-        cursor: "pointer",
-        fontSize: "0.95rem"
-    },
-    erro: {
-        color: "var(--despesa)",
-        fontSize: "0.85rem",
-        marginTop: "0.75rem"
-    },
-    item: {
-        display: "flex",
-        justifyContent: "space-between",
-        alignItems: "center",
-        padding: "1rem 0",
-        borderBottom: "1px solid var(--borda)"
-    },
-    itemInfo: {
-        display: "flex",
-        alignItems: "center",
-        gap: "1rem"
-    },
-    itemNome: {
-        fontWeight: "600",
-        fontSize: "0.95rem",
-        color: "var(--texto)"
-    },
-    itemTipo: {
-        fontSize: "0.8rem",
-        fontWeight: "500"
-    },
-    botaoDeletar: {
-        background: "none",
-        border: "none",
-        color: "var(--texto-suave)",
-        cursor: "pointer",
-        fontSize: "1rem",
-        padding: "0.25rem"
-    },
-    vazio: {
-        textAlign: "center",
-        color: "var(--texto-suave)",
-        padding: "2rem 0"
-    }
-};
 
 export default Categorias;

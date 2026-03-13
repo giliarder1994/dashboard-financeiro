@@ -1,0 +1,132 @@
+.wrapper {
+    display: flex;
+    min-height: 100vh;
+}
+
+.topbar {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 60px;
+    background: var(--card);
+    box-shadow: var(--sombra);
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 1.25rem;
+    z-index: 999;
+}
+
+.topbarLogo {
+    font-weight: 700;
+    color: var(--primaria);
+    font-size: 1rem;
+}
+
+.hamburguer {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: var(--texto);
+}
+
+.overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.4);
+    z-index: 998;
+}
+
+.sidebar {
+    width: 240px;
+    background: var(--card);
+    box-shadow: var(--sombra);
+    display: flex;
+    flex-direction: column;
+    padding: 2rem 1rem;
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100vh;
+    z-index: 999;
+    transition: transform 0.3s ease;
+}
+
+.logo {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--primaria);
+    margin-bottom: 2.5rem;
+    padding-left: 0.5rem;
+}
+
+.nav {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    flex: 1;
+}
+
+.navItem {
+    padding: 0.75rem 1rem;
+    border-radius: 8px;
+    text-decoration: none;
+    color: var(--texto-suave);
+    font-weight: 500;
+    font-size: 0.95rem;
+    transition: all 0.2s;
+}
+
+.navItem:hover {
+    background: var(--fundo);
+    color: var(--texto);
+}
+
+.navAtivo {
+    background: var(--fundo);
+    color: var(--primaria);
+    font-weight: 600;
+}
+
+.sair {
+    padding: 0.75rem;
+    background: none;
+    border: 1px solid var(--borda);
+    border-radius: 8px;
+    color: var(--texto-suave);
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: all 0.2s;
+}
+
+.sair:hover {
+    background: var(--fundo);
+}
+
+.conteudo {
+    margin-left: 240px;
+    padding: 2rem;
+    flex: 1;
+    width: 100%;
+}
+
+@media (max-width: 768px) {
+    .topbar {
+        display: flex;
+    }
+
+    .sidebar {
+        transform: translateX(-100%);
+    }
+
+    .sidebarAberta {
+        transform: translateX(0);
+    }
+
+    .conteudo {
+        margin-left: 0;
+        padding: 5rem 1rem 1rem 1rem;
+    }
+}

@@ -120,3 +120,26 @@ exports.resumo = async (req, res, next) => {
         return next(erro);
     }
 };
+
+exports.mensal = async (req, res, next) => {
+    try {
+        const usuario_id = req.usuario.id;
+
+        const [resultado] = await conexao.promise().query(`
+            SELECT 
+                DATE_FORMAT(data, '%Y-%m') AS mes,
+                SUM(CASE WHEN tipo = 'receita' THEN valor ELSE 0 END) AS receitas,
+                SUM(CASE WHEN tipo = 'despesa' THEN valor ELSE 0 END) AS despesas
+            FROM transacoes
+            WHERE usuario_id = ?
+            GROUP BY DATE_FORMAT(data, '%Y-%m')
+            ORDER BY mes ASC
+            LIMIT 6
+        `, [usuario_id]);
+
+        return res.status(200).json(resultado);
+
+    } catch (erro) {
+        return next(erro);
+    }
+};
