@@ -9,7 +9,9 @@ const categoriasRouter = require("./routes/categorias.routes");
 const transacoesRouter = require("./routes/transacoes.routes");
 const { erroMiddleware } = require("./middlewares/erro.middleware");
 
-app.use(cors());
+app.use(cors({
+    origin: "https://dashboard-financeiro-flame.vercel.app"
+}));
 app.use(express.json());
 
 app.use(authRouter);
