@@ -1,7 +1,9 @@
 import axios from "axios";
 
+// URL do backend — configure a variável VITE_API_URL
+// no painel do Vercel com a URL do seu backend
 const api = axios.create({
-    baseURL: "https://dashboard-financeiro-production-a4de.up.railway.app"
+    baseURL: import.meta.env.VITE_API_URL || "http://localhost:3000"
 });
 
 api.interceptors.request.use((config) => {

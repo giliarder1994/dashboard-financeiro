@@ -9,8 +9,9 @@ const categoriasRouter = require("./routes/categorias.routes");
 const transacoesRouter = require("./routes/transacoes.routes");
 const { erroMiddleware } = require("./middlewares/erro.middleware");
 
+const origemPermitida = process.env.FRONTEND_URL || "*";
 app.use(cors({
-    origin: "https://dashboard-financeiro-flame.vercel.app"
+    origin: origemPermitida
 }));
 app.use(express.json());
 

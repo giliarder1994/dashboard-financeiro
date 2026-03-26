@@ -1,20 +1,21 @@
 {
-  "name": "nodejs-sandbox",
+  "name": "dashboard-financeiro-backend",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "description": "Backend do Dashboard Financeiro",
+  "main": "src/app.js",
   "scripts": {
-    "start": "node --watch index.js"
+    "start": "node src/app.js",
+    "dev": "node --watch src/app.js",
+    "criar-tabelas": "node criarTabelas.js"
   },
   "keywords": [],
-  "author": "Ives van Hoorne",
+  "author": "",
   "license": "MIT",
   "dependencies": {
     "bcrypt": "^6.0.0",
     "cors": "^2.8.6",
     "dotenv": "^17.3.1",
     "express": "^5.2.1",
-    "gitignore": "^0.7.0",
     "jsonwebtoken": "^9.0.3",
     "mysql2": "^3.19.1"
   }
