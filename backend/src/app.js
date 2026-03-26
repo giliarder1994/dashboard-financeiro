@@ -9,9 +9,19 @@ const categoriasRouter = require("./routes/categorias.routes");
 const transacoesRouter = require("./routes/transacoes.routes");
 const { erroMiddleware } = require("./middlewares/erro.middleware");
 
-const origemPermitida = process.env.FRONTEND_URL || "*";
+const allowedOrigins = [
+  'https://dashboard-financeiro-flame.vercel.app',
+  'https://dashboard-financeiro-io086ri3q-giliarder1994s-projects.vercel.app'
+];
+
 app.use(cors({
-    origin: origemPermitida
+  origin: function (origin, callback) {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  }
 }));
 app.use(express.json());
 
