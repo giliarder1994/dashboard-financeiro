@@ -1,3 +1,6 @@
+CREATE DATABASE IF NOT EXISTS dashboard_financeiro;
+USE dashboard_financeiro;
+
 CREATE TABLE IF NOT EXISTS usuarios (
     id INT AUTO_INCREMENT PRIMARY KEY,
     nome VARCHAR(100) NOT NULL,
