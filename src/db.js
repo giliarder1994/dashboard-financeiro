@@ -18,7 +18,7 @@ pool.getConnection((erro, conexao) => {
         console.error("Erro ao conectar ao banco de dados:", erro.message);
         return;
     }
-    console.log("Conectado ao MySQL (FreeSQLDatabase) com sucesso!");
+    console.log("Conectado ao MySQL com sucesso!");
     conexao.release();
 });
 
